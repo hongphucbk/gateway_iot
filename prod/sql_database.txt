@@ -13,10 +13,19 @@ CREATE TABLE DataLogger1
 
 CREATE TABLE DataLogger2
 ( id BIGINT IDENTITY PRIMARY KEY,
-  site_id VARCHAR(50) NOT NULL,
-  site_name VARCHAR(50),
+  site_id VARCHAR(40) NOT NULL,
+  site_name VARCHAR(40),
   avrflow FLOAT,
   tier1 FLOAT,
   tier2 FLOAT,
+  created_at DATETIME
+);
+
+
+CREATE TABLE DataLoggerStatus
+( id BIGINT IDENTITY PRIMARY KEY,
+  site_id VARCHAR(40) NOT NULL,
+  site_name VARCHAR(40),
+  is_connect BIT,
   created_at DATETIME
 );
