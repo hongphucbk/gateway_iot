@@ -4,10 +4,14 @@ CREATE TABLE DataLogger1
 ( id BIGINT IDENTITY PRIMARY KEY,
   site_id VARCHAR(40) NOT NULL,
   site_name VARCHAR(40),
-  information VARCHAR(1000),
-  created_at DATETIME,
+  temperature FLOAT,
+  pressure float,
+  flow float,
+  compensatedflow float,
   tier1 FLOAT,
   tier2 FLOAT,
+  information VARCHAR(1000),
+  created_at DATETIME,
   note VARCHAR(50) null
 );
 
