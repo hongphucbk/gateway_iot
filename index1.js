@@ -73,7 +73,7 @@ async function run(){
       if (error) {
         console.log('Error save data to Local data')
       }
-      opc_server[0].data[4].value = 0
+      //opc_server[0].data[4].value = 0
     });
   }, TIME_INTERVAL_GETDATA);
 
@@ -312,10 +312,11 @@ async function readOPCUA(){
   function(err) {
     if (err) {
         console.log("Failure ",err);
+        opc_server[0].data[4].value = 0
     } else {
         console.log("done!")
     }
-    opc_server[0].data[4].value = 0
+    
 
     client.disconnect(function(){
       opc_server[0].data[4].value = 0
