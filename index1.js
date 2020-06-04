@@ -60,7 +60,7 @@ async function run(){
       let _site_name = opc_server[0].site_name
 
       insert_data(_site_id, _site_name, opc_server[0].data[0].value, opc_server[0].data[2].value, opc_server[0].data[1].value, opc_server[0].data[3].value, JSON.stringify(opc_server[0].data), tier1, tier2, opc_server[0].created_at);
-      saveConnectionStatusToDatabase(opc_server[0].site_id, opc_server[0].site_name, opc_server[0].data[4].value)
+      
       //console.log('daa ',opc_server[0].data[4].value) 
       let tempData = {
         site_id: opc_server[0].site_id,
@@ -140,6 +140,11 @@ async function run(){
 
     deleteDataAfter10days()
   }, TIME_INTERVAL_REMOVE_DATA);
+
+  //Check status
+  await setInterval(async function(){
+    saveConnectionStatusToDatabase(opc_server[0].site_id, opc_server[0].site_name, opc_server[0].data[4].value)
+  }, TIME_INTERVAL_GETDATA);
 
   await readOPCUA1()
 }
