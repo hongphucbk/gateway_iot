@@ -4,16 +4,11 @@
   "description": "Gateway",
   "main": "index.js",
   "dependencies": {
-    "async": "^3.2.0",
     "dotenv": "^8.2.0",
-    "http": "^0.0.1-security",
-    "mongoose": "^5.9.11",
-    "moment": "^2.25.3",
+    "moment": "^2.26.0",
+    "mongoose": "^5.9.17",
     "mssql": "^6.2.0",
-    "node-opcua": "^0.1.1-0",
-    "pm2": "^4.4.0",
-    "socket.io": "^2.3.0",
-    "socket.io-client": "^2.3.0"
+    "node-opcua-client": "^2.6.4"
   },
   "devDependencies": {},
   "scripts": {

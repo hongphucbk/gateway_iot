@@ -2,8 +2,8 @@ use LindeDataLogger;
 
 CREATE TABLE DataLogger1
 ( id BIGINT IDENTITY PRIMARY KEY,
-  site_id VARCHAR(40) NOT NULL,
-  site_name VARCHAR(40),
+  site_id VARCHAR(60) NOT NULL,
+  site_name VARCHAR(60),
   temperature FLOAT,
   pressure float,
   flow float,
@@ -12,13 +12,13 @@ CREATE TABLE DataLogger1
   tier2 FLOAT,
   information VARCHAR(1000),
   created_at DATETIME,
-  note VARCHAR(50) null
+  note VARCHAR(60) null
 );
 
 CREATE TABLE DataLogger2
 ( id BIGINT IDENTITY PRIMARY KEY,
-  site_id VARCHAR(40) NOT NULL,
-  site_name VARCHAR(40),
+  site_id VARCHAR(60) NOT NULL,
+  site_name VARCHAR(60),
   avrflow FLOAT,
   tier1 FLOAT,
   tier2 FLOAT,
@@ -28,8 +28,8 @@ CREATE TABLE DataLogger2
 
 CREATE TABLE DataLoggerStatus
 ( id BIGINT IDENTITY PRIMARY KEY,
-  site_id VARCHAR(40) NOT NULL,
-  site_name VARCHAR(40),
+  site_id VARCHAR(60) NOT NULL,
+  site_name VARCHAR(60),
   is_connect BIT,
   created_at DATETIME
 );
