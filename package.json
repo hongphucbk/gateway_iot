@@ -5,6 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "dotenv": "^8.2.0",
+    "minimist": "^1.2.5",
     "moment": "^2.26.0",
     "mongoose": "^5.9.17",
     "mssql": "^6.2.0",
