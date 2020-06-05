@@ -8,7 +8,7 @@ var svc = new Service({
   name:'AucontechGateway',
   description: 'The gateway read data from Flexy by Aucontech',
   //script: 'E:\\Aucontech\\02. Project\\02. Linde Malaysia\\Project\\GatewayIOT_Demo\\index1.js',
-  script: require('path').join(__dirname,'index1.js')
+  script: require('path').join(__dirname,'index.js')
 });
  
 // Listen for the "install" event, which indicates the
