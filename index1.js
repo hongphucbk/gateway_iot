@@ -532,13 +532,12 @@ async function readOPCUA1(){
 };
 
 function exportToCSVFile(data){
- 
   const options = { 
     fieldSeparator: ',',
     quoteStrings: '"',
     decimalSeparator: '.',
     showLabels: true, 
-    showTitle: true,
+    showTitle: false,
     title: 'Data',
     useTextFile: false,
     useBom: true,
