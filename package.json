@@ -6,7 +6,6 @@
   "dependencies": {
     "chalk": "^4.0.0",
     "dotenv": "^8.2.0",
-    "export-to-csv": "^0.2.1",
     "fs": "0.0.1-security",
     "minimist": "^1.2.5",
     "moment": "^2.26.0",
