@@ -5,6 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "chalk": "^4.0.0",
+    "dateformat": "^3.0.3",
     "dotenv": "^8.2.0",
     "export-to-csv": "^0.2.1",
     "fs": "0.0.1-security",

@@ -2,6 +2,7 @@ require('dotenv').config()
 var moment = require('moment');
 var fs = require('fs');
 const mkdirp = require('mkdirp');
+var dateFormat = require('dateformat');
 const ExportToCsv = require('export-to-csv').ExportToCsv;
 
 var mongoose = require('mongoose');
@@ -113,7 +114,11 @@ async function run(){
         flag: 1
       }
 
-      let dtDate = moment(opc_server[0].created_at).format('YYYY-MM-DD HH:mm:ss');
+      //let dtDate = moment(opc_server[0].created_at).format('YYYY/MM/DD HH:mm:ss');
+      //let dtDate = opc_server[0].created_at;
+      let dtDate = dateFormat(opc_server[0].created_at, "mm/dd/yyyy HH:MM");
+      //console.log(abc, typeof(abc))
+
       let dataExport = [
         {
           TimeStamp: dtDate,
@@ -535,10 +540,10 @@ function exportToCSVFile(data){
  
   const options = { 
     fieldSeparator: ',',
-    quoteStrings: '"',
+    quoteStrings: '',
     decimalSeparator: '.',
     showLabels: true, 
-    showTitle: false,
+    showTitle: true,
     title: 'Data',
     useTextFile: false,
     useBom: true,
