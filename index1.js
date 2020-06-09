@@ -1,7 +1,7 @@
 require('dotenv').config()
 var moment = require('moment');
 var fs = require('fs');
-// const ExportToCsv = require('export-to-csv').ExportToCsv;
+const mkdirp = require('mkdirp');
 const ExportToCsv = require('export-to-csv').ExportToCsv;
 
 var mongoose = require('mongoose');
@@ -146,7 +146,7 @@ async function run(){
           Value: opc_server[0].data[4].value,
         }
       ]
-      // exportToCSVFile(dataExport)
+      exportToCSVFile(dataExport)
       await RawData.insertMany(tempData, function(error, docs) {
         if (error) {
           console.log('Error save data to Local data')
@@ -222,9 +222,9 @@ async function run(){
     saveConnectionStatusToDatabase(opc_server[0].site_id, opc_server[0].site_name, opc_server[0].data[4].value)
   }, TIME_INTERVAL_GETDATA);
 
-  await setInterval(async function(){
-    //await exportToCSVFile()
-  }, 10000);
+  // await setInterval(async function(){
+  //   //await exportToCSVFile()
+  // }, 10000);
 
   await readOPCUA1()
 }
@@ -532,6 +532,7 @@ async function readOPCUA1(){
 };
 
 function exportToCSVFile(data){
+ 
   const options = { 
     fieldSeparator: ',',
     quoteStrings: '"',
@@ -551,6 +552,19 @@ function exportToCSVFile(data){
   dateTime = moment(dateTime).format("YYYYMMDD_HHmmss");
   let strFullPath = process.env.CSV_EXPORT_PATH + '\\Data_' + process.env.site_id + '_' + dateTime + '.csv'
   fs.writeFileSync(strFullPath, csvData)
+
+  //for Backup
+  let _strPath_Year = process.env.CSV_BACKUP_PATH +'\\' + moment().format("YYYY")
+  let _strPath_Month = _strPath_Year + '\\' + moment().format("YYYY_MM")
+  let _strPath_Date = _strPath_Month + '\\' + moment().format("YYYY_MM_DD")
+  let _strPath_Hour = _strPath_Date + '\\' + moment().format("YYYY_MM_DD_HH")
+
+  const folderYear = mkdirp.sync(_strPath_Year);
+  const folderMonth = mkdirp.sync(_strPath_Month);
+  const folderDate = mkdirp.sync(_strPath_Date);
+  const folderHour = mkdirp.sync(_strPath_Hour);
+  let strFullPathBackup = _strPath_Hour + '\\Data_' + process.env.site_id + '_' + dateTime + '.csv'
+  fs.writeFileSync(strFullPathBackup, csvData)
 }
 
 
