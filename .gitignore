@@ -1,4 +1,4 @@
 # .env
-# node_modules
+node_modules
 # index1.js
 demo_opcua.js
