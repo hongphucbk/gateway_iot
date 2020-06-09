@@ -1,5 +1,9 @@
 require('dotenv').config()
 var moment = require('moment');
+var fs = require('fs');
+// const ExportToCsv = require('export-to-csv').ExportToCsv;
+const ExportToCsv = require('export-to-csv').ExportToCsv;
+
 var mongoose = require('mongoose');
 var sql = require("mssql");
 
@@ -31,16 +35,58 @@ var interval_flag = 0;
 
 async function run(){
   await readFirstConfig()
-    
   await setTimeout(function(){}, 2000);
+
   await setInterval(async function(){
-    //console.log(opc_server[0].data[4].value)
+    let _site_id = opc_server[0].site_id
+    let _site_name = opc_server[0].site_name
 
     if (interval_flag) {
+      const data = await fs.readFileSync('user/edit.txt');
+      let strData = data.toString();
+      let jsonData = JSON.parse(strData)
+
       let FlowCon = opc_server[0].data[3].value
       let preTier1 = opc_server[0].tier1
       let preTier2 = opc_server[0].tier2
 
+      //if user change modify data
+      if (jsonData.tier1 > 0 || jsonData.tier2 > 0 || jsonData.avrTier1 > 0 || jsonData.avrTier2 > 0) {
+        console.log('user modified ', jsonData.tier1, jsonData.tier2, jsonData.avrTier1, jsonData.avrTier2)
+        fs.writeFileSync('user/edit.txt','{"tier1": 0, "tier2": 0, "avrTier1": 0, "avrTier2":0 }')
+        
+        preTier1 = jsonData.tier1
+        preTier2 = jsonData.tier2
+
+        //Update tier1, tier2 for 1 minute
+        let tempData = {
+          site_id: opc_server[0].site_id,
+          site_name: opc_server[0].site_name,
+          information: opc_server[0].data,
+          tier1: jsonData.tier1,
+          tier2: jsonData.tier2,
+          created_at: new Date(),
+          flag: 1,
+          note: 'user modified'
+        }
+        let startdate  = moment().subtract(20, 'minutes');
+        let enddate = moment();
+        
+        let findCondition = { created_at: { $gte: startdate }, tier1: {$gt : 0} }
+        await RawData.updateMany(findCondition, { $set: { flag: 0 } });
+        await RawData.insertMany(tempData);
+        insert_data(_site_id, _site_name, opc_server[0].data[0].value, opc_server[0].data[2].value, opc_server[0].data[1].value, opc_server[0].data[3].value, JSON.stringify(opc_server[0].data), jsonData.tier1, jsonData.tier2, opc_server[0].created_at);
+        // Update data 
+        opc_server_avr.tier1 = jsonData.avrTier1
+        opc_server_avr.tier2 = jsonData.avrTier2
+        opc_server_avr.created_at = new Date()
+
+        let objTempS = opc_server_avr
+        objTempS.note = 'user modified'
+        await CalcData.insertMany(objTempS);
+        objTempS.note = ''
+      }
+      
       let tier1, tier2
       if (FlowCon > TIER_2_BENCHMARK) {
         tier1 = TIER_2_BENCHMARK/60 + preTier1
@@ -54,11 +100,6 @@ async function run(){
       opc_server[0].tier1 = tier1
       opc_server[0].tier2 = tier2
 
-      //console.log(FlowCon, TIER_2_BENCHMARK, tier1)
-
-      let _site_id = opc_server[0].site_id
-      let _site_name = opc_server[0].site_name
-
       insert_data(_site_id, _site_name, opc_server[0].data[0].value, opc_server[0].data[2].value, opc_server[0].data[1].value, opc_server[0].data[3].value, JSON.stringify(opc_server[0].data), tier1, tier2, opc_server[0].created_at);
       
       //console.log('daa ',opc_server[0].data[4].value) 
@@ -69,8 +110,43 @@ async function run(){
         tier1: opc_server[0].tier1,
         tier2: opc_server[0].tier2,
         created_at: new Date(),
+        flag: 1
       }
 
+      let dtDate = moment(opc_server[0].created_at).format('YYYY-MM-DD HH:mm:ss');
+      let dataExport = [
+        {
+          TimeStamp: dtDate,
+          Tagname: 'MY999952:METTUBE.FQ-GN21',
+          Value: tier1,
+        },
+        {
+          TimeStamp: dtDate,
+          Tagname: 'MY999952:METTUBE.FQ-GN22',
+          Value: tier2,
+        },
+        {
+          TimeStamp: dtDate,
+          Tagname: 'MY999952:METTUBE.FT-GN21',
+          Value: opc_server[0].data[1].value,
+        },
+        {
+          TimeStamp: dtDate,
+          Tagname: 'MY999952:METTUBE.PT-GN21',
+          Value: opc_server[0].data[2].value,
+        },
+        {
+          TimeStamp: dtDate,
+          Tagname: 'MY999952:METTUBE.TT-GN21',
+          Value: opc_server[0].data[0].value,
+        },
+        {
+          TimeStamp: dtDate,
+          Tagname: 'MY999952:METTUBE.COMMUNICATION',
+          Value: opc_server[0].data[4].value,
+        }
+      ]
+      // exportToCSVFile(dataExport)
       await RawData.insertMany(tempData, function(error, docs) {
         if (error) {
           console.log('Error save data to Local data')
@@ -80,13 +156,13 @@ async function run(){
     } //End if
   }, TIME_INTERVAL_GETDATA);
 
+  //============================================================
   //Calc average 
   await setInterval(async function(){
     //console.log(opc_server[0].data[4].value)
 
     if (interval_flag) {
     let startdate  = moment().subtract(15, 'minutes');
-    //let startdate = new Date(enddate.getFullYear(), enddate.getMonth(), enddate.getDate(), enddate.getHours(),enddate.getMinutes(), 0 )
     let enddate = moment();
     
     let findCondition = { created_at: { $gte: startdate, $lte: enddate }, tier1: {$gt : 0} }
@@ -123,12 +199,12 @@ async function run(){
     let temp_data_save = opc_server_avr;
     temp_data_save.avr_flow = opc_server_avr.avrFlow
 
-    CalcData.insertMany(temp_data_save, function(error, docs) {
+    await CalcData.insertMany(temp_data_save, function(error, docs) {
       if (error) {
         console.log('Error save data to Local data')
       }
     });
-    saveAvrDataToDatabase(opc_server[0].site_id, opc_server[0].site_name, opc_server_avr.avrFlow, opc_server_avr.tier1, opc_server_avr.tier2)
+    await saveAvrDataToDatabase(opc_server[0].site_id, opc_server[0].site_name, opc_server_avr.avrFlow, opc_server_avr.tier1, opc_server_avr.tier2)
     } //End if
   }, TIME_INTERVAL_CALCDATA);
 
@@ -145,6 +221,10 @@ async function run(){
   await setInterval(async function(){
     saveConnectionStatusToDatabase(opc_server[0].site_id, opc_server[0].site_name, opc_server[0].data[4].value)
   }, TIME_INTERVAL_GETDATA);
+
+  await setInterval(async function(){
+    //await exportToCSVFile()
+  }, 10000);
 
   await readOPCUA1()
 }
@@ -333,7 +413,6 @@ function deleteDataAfter10days(){
   sql.on('error', err => {
     console.log('SQL has issue ', err )
   })
-
 }
  
 async function readOPCUA1(){
@@ -452,7 +531,28 @@ async function readOPCUA1(){
   }
 };
 
+function exportToCSVFile(data){
+ 
+  const options = { 
+    fieldSeparator: ',',
+    quoteStrings: '"',
+    decimalSeparator: '.',
+    showLabels: true, 
+    showTitle: true,
+    title: 'Data',
+    useTextFile: false,
+    useBom: true,
+    useKeysAsHeaders: false,
+    headers: ['TimeStamp', 'Tagname', 'Value'] //<-- Won't work with useKeysAsHeaders present!
+  };
 
+  const csvExporter = new ExportToCsv(options);
+  const csvData = csvExporter.generateCsv(data, true);
+  var dateTime = new Date();
+  dateTime = moment(dateTime).format("YYYYMMDD_HHmmss");
+  let strFullPath = process.env.CSV_EXPORT_PATH + '\\Data_' + process.env.site_id + '_' + dateTime + '.csv'
+  fs.writeFileSync(strFullPath, csvData)
+}
 
 
 

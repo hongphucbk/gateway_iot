@@ -6,6 +6,7 @@ var rawDataSchema = new mongoose.Schema({
 	created_at: Date,
 	tier1: Number,
 	tier2: Number,
+	flag: Number,
 	is_active: Number,
 	is_display: Number,
 	priority: Number,

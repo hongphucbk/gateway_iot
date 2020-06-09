@@ -1,0 +1,1 @@
+{"tier1": 0, "tier2": 0, "avrTier1": 0, "avrTier2":0 }
