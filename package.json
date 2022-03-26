@@ -9,7 +9,7 @@
     "dotenv": "^8.2.0",
     "export-to-csv": "^0.2.1",
     "fs": "0.0.1-security",
-    "minimist": "^1.2.5",
+    "minimist": "^1.2.6",
     "mkdirp": "^1.0.4",
     "moment": "^2.26.0",
     "mongoose": "^5.9.17",
